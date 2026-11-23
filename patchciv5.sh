@@ -17,7 +17,7 @@ if [[ -f "${game_directory}/Civ5XP" ]]; then
     VERSION=linux
     echo "Detected native Linux version of Civ 5"
 fi
-if [[ -f "${game_directory}/Civ5XP.exe" ]]; then
+if [[ -f "${game_directory}/CivilizationV.exe" ]]; then
     VERSION=windows
     echo "Detected Proton version of Civ 5"
 fi
@@ -48,13 +48,31 @@ apply_linux_fixes() {
     echo "Enabling achievements with mods"
     sed -i 's/SELECT ModID from Mods where Activated = 1/SELECT ModID from Mods where Activated = 2/' "${game_directory}/Civ5XP"
 
+    # Doesn't work :/
+    # echo "Fixing map type achievements"
+    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL.so"
+    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL_Expansion1.so"
+    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL_Expansion2.so"
+
+    # Check to see if system is using Mesa 24 or newer
+    if [[ $(glxinfo 2>/dev/null | grep -o "Mesa [0-9]\+\.[0-9]\+" | head -n 1 | awk '{print $2}' | cut -d . -f 1) -ge 24 ]]; then
+        # Check to see if system is using Intel Iris graphics
+        if lspci | grep VGA | grep -q Iris; then
+            echo "⚠️ Intel Iris graphics detected with Mesa >= 24; crashes will occur!"
+            echo "    To fix, set the game Launch Options in the Steam properties to:"
+            echo "    MESA_LOADER_DRIVER_OVERRIDE=zink %command%"
+        elif lspci | grep VGA | egrep -iq "intel|amd"; then
+            echo "ⓘ Mesa >= 24 detected; if the game crashes try setting the game Launch Options in the Steam properties to:"
+            echo "    MESA_LOADER_DRIVER_OVERRIDE=zink %command%"
+        fi
+    fi
+
     # Check to see if the system has more than 8 cores
     if [ "$(nproc --all)" -gt 8 ]; then
         echo "WARNING: System has more than 8 cores. See https://wiki.archlinux.org/title/Steam/Game-specific_troubleshooting#Civilization_V for details on how to fix potential crashes."
     fi
 }
 
-# TODO: All this needs to be tested
 apply_windows_fixes() {
     echo "Deleting intro logo videos"
     rm -f "${game_directory}/Assets/DLC/Expansion"/Civ5XP_Opening_Movie*
