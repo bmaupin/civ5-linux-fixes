@@ -27,6 +27,8 @@ if [[ -z "${VERSION}" ]]; then
     exit 1
 fi
 
+
+
 apply_linux_fixes() {
     echo "Deleting intro videos"
     rm -f "${game_directory}/steamassets/assets/dlc/expansion"/civ5xp_opening_movie*
@@ -48,11 +50,10 @@ apply_linux_fixes() {
     echo "Enabling achievements with mods"
     sed -i 's/SELECT ModID from Mods where Activated = 1/SELECT ModID from Mods where Activated = 2/' "${game_directory}/Civ5XP"
 
-    # Doesn't work :/
-    # echo "Fixing map type achievements"
-    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL.so"
-    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL_Expansion1.so"
-    # sed -z -i '/^Assets\\Maps\\/s|\\|/|g' "${game_directory}/libCvGameCoreDLL_Expansion2.so"
+    echo "Fixing map type achievements"
+    sed -z -i 's|Assets\\Maps\\\([^\\]*\)$|Assets\\Maps\\\L\1|' "${game_directory}/libCvGameCoreDLL.so"
+    sed -z -i 's|Assets\\Maps\\\([^\\]*\)$|Assets\\Maps\\\L\1|' "${game_directory}/libCvGameCoreDLL_Expansion1.so"
+    sed -z -i 's|Assets\\Maps\\\([^\\]*\)$|Assets\\Maps\\\L\1|' "${game_directory}/libCvGameCoreDLL_Expansion2.so"
 
     # Check to see if system is using Mesa 24 or newer
     if [[ $(glxinfo 2>/dev/null | grep -o "Mesa [0-9]\+\.[0-9]\+" | head -n 1 | awk '{print $2}' | cut -d . -f 1) -ge 24 ]]; then
@@ -72,6 +73,8 @@ apply_linux_fixes() {
         echo "WARNING: System has more than 8 cores. See https://wiki.archlinux.org/title/Steam/Game-specific_troubleshooting#Civilization_V for details on how to fix potential crashes."
     fi
 }
+
+
 
 apply_windows_fixes() {
     echo "Deleting intro logo videos"
@@ -93,6 +96,8 @@ apply_windows_fixes() {
 
     echo "See here to enable achievements with mods: https://github.com/bmaupin/civ5-cheevos-with-mods"
 }
+
+
 
 if [[ "${VERSION}" == "linux" ]]; then
     apply_linux_fixes
