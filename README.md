@@ -11,11 +11,11 @@ Various fixes and workarounds for Sid Meier's Civilization: V on Linux
 The native version of the game has the following issues:
 
 - Security vulnerability ([CVE-2026-116111](https://www.rapid7.com/db/vulnerabilities/cve-2026-116111/))
+  - The patch script will mitigate this for Linux
 - Crashes with Mesa 24 and newer on Intel graphics
   - A workaround is available; see or run patch script for more information
 - [Map type achievements are broken](https://steamcommunity.com/app/8930/discussions/0/558756256352674968/)
   - The patch script will fix this
-
 
 #### Choose the native Linux version or Proton
 
@@ -26,9 +26,7 @@ The native version of the game has the following issues:
 1. _Compatibility_ > check _Force the use of a specific Steam Play compatibility tool_
 
 1. Click the dropdown
-
    - To use Proton, choose a version of _Proton_
-
      - Normally the latest stable version is fine. If you have issues, try another version.
 
    - To use native, choose _Steam Linux Runtime 1.0_

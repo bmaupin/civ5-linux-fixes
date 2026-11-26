@@ -55,6 +55,34 @@ apply_linux_fixes() {
     sed -z -i 's|Assets\\Maps\\\([^\\]*\)$|Assets\\Maps\\\L\1|' "${game_directory}/libCvGameCoreDLL_Expansion1.so"
     sed -z -i 's|Assets\\Maps\\\([^\\]*\)$|Assets\\Maps\\\L\1|' "${game_directory}/libCvGameCoreDLL_Expansion2.so"
 
+    build_id=$(readelf -n "${game_directory}/Civ5XP" | grep 'Build ID' | awk '{print $3}')
+    if [[ "$build_id" = "51a7d1319a1a07b94db5d13b4d019d97aee9d235" ]]; then
+        echo "Applying Lua exploit mitigations"
+        # io_input
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ab53)) conv=notrunc status=none
+        # io_lines
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ab84)) conv=notrunc status=none
+        # io_open
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ac7b)) conv=notrunc status=none
+        # io_output
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ad08)) conv=notrunc status=none
+        # io_popen
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ad39)) conv=notrunc status=none
+        # io_tmpfile
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9ae07)) conv=notrunc status=none
+        # ll_loadlib
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9d4df)) conv=notrunc status=none
+        # os_execute
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9e077)) conv=notrunc status=none
+        # os_remove
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9e14b)) conv=notrunc status=none
+        # os_rename
+        printf '\x0f\x0b' | dd of="${game_directory}/Civ5XP" bs=1 seek=$((0xd9e19c)) conv=notrunc status=none
+    else
+        echo "Error: Build ID mismatch; unable to apply Lua exploit mitigations" >&2
+        exit 1
+    fi
+
     # Check to see if system is using Mesa 24 or newer
     if [[ $(glxinfo 2>/dev/null | grep -o "Mesa [0-9]\+\.[0-9]\+" | head -n 1 | awk '{print $2}' | cut -d . -f 1) -ge 24 ]]; then
         # Check to see if system is using Intel Iris graphics
