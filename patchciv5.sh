@@ -58,7 +58,7 @@ apply_linux_fixes() {
     # Check to see if system is using Mesa 24 or newer
     if [[ $(glxinfo 2>/dev/null | grep -o "Mesa [0-9]\+\.[0-9]\+" | head -n 1 | awk '{print $2}' | cut -d . -f 1) -ge 24 ]]; then
         # Check to see if system is using Intel Iris graphics
-        if lspci | grep VGA | grep -q Iris; then
+        if LIBGL_DEBUG=verbose glxinfo -B 2>&1 | grep -q 'driver iris'; then
             echo "⚠️ Intel Iris graphics detected with Mesa >= 24; crashes will occur!"
             echo "    To fix, set the game Launch Options in the Steam properties to:"
             echo "    MESA_LOADER_DRIVER_OVERRIDE=zink %command%"
